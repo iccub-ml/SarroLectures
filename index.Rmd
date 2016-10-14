@@ -1,5 +1,5 @@
 ---
-title: "Luis' Home"
+title: "Luis' Lectures at ICCUB School Home"
 output: 
   html_document:
     highlight: tango
@@ -8,7 +8,6 @@ output:
       collapsed: false
     include:
       before_body: [footer.html]
-      after_body: [footer.html]
 ---
 
 <style type="text/css">
@@ -20,8 +19,3 @@ output:
 
 # ICCUB School Lectures by Luis M. Sarro
 Machine Learning and Data Mining in Physics
-
-```{r}
-#rmarkdown::clean_site()
-#rmarkdown::render_site()
-```
