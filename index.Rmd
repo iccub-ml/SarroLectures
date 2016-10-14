@@ -16,14 +16,7 @@ output:
   display: none;
 }
 
-#getting-started img {
-#  margin-right: 10px;
-#}
-
 </style>
-
-<div class="row" style="padding-top: 200px;">
-</div>
 
 # ICCUB School Lectures by Luis M. Sarro
 Machine Learning and Data Mining in Physics
