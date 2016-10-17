@@ -684,8 +684,9 @@ cluster &lt;-<span class="st"> </span><span class="kw">som</span>(mock.data)
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cluster, <span class="dt">type=</span><span class="st">&quot;count&quot;</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-21-6.png" width="672" /></p>
 </div>
-<div id="hierarchical-connectivity-based-clustering" class="section level2">
-<h2>Hierarchical (connectivity based) clustering</h2>
+<div id="hierarchical-agglomerative-connectivity-based-clustering" class="section level2">
+<h2>Hierarchical agglomerative (connectivity based) clustering</h2>
+<p>Start with one cluster per data point, and iteratively merge at each steps the two clusters that are ‘closer’ together, with distance between clusters measured as: * <strong>single-linkage</strong> the minimum distance amongst all pairs of points that we can define with one in cluster <span class="math">\(C_i\)</span> and another in cluster <span class="math">\(C_j\)</span> * <strong>average linkage</strong> the average distance amongst all pairs of points… * <strong>complete linkage</strong> the maximum distance for all pairs… * <strong>centroid linkage</strong> the distance between the centre of mass of each clusters, or the data point closer to it. * <strong>minimum energy linkage</strong> similar to the average linkage but a penalization term that include the intra-cluster variances for <span class="math">\(C_i\)</span> and <span class="math">\(C_j\)</span> * <strong>wards metric</strong>: merge the two clusters that yield the smallest increase in the total intracluster variance.</p>
 <pre class="sourceCode r"><code class="sourceCode r">dists &lt;-<span class="st"> </span><span class="kw">dist</span>(data)
 clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <span class="dt">method =</span> <span class="st">&#39;average&#39;</span>)
 <span class="co">#clusters &lt;- hclust(dists, method = &#39;ward.D&#39;)</span>
@@ -708,10 +709,9 @@ clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <sp
 clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dt">k=</span><span class="dv">200</span>)
 <span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">4</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-4.png" width="672" /></p>
-<pre class="sourceCode r"><code class="sourceCode r">clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <span class="dt">method =</span> <span class="st">&#39;single&#39;</span>)
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># clusters &lt;- hclust(dists, method = &#39;single&#39;)</span>
 clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dv">200</span>)
 <span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">4</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
-<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-5.png" width="672" /></p>
 </div>
 <div id="subspace-clustering" class="section level2">
 <h2>Subspace clustering</h2>
@@ -742,18 +742,34 @@ S_i = {x \in \mathbb{R}^D: x=\mathbb{\mu}_i+U_i\cdot\mathbb{y}}
 <li><p>we have to have an initial clustering</p></li>
 <li><p>We need to fix a priori the number of clusters and the dimensionality of the subspaces</p></li>
 </ul>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co">#library(&quot;orclus&quot;)</span>
-<span class="co">#cluster &lt;- orclus(data,k=10,l=3,180,inner.loops=20)</span>
-<span class="co">#plot(data[,1],data[,6],col=cluster$cluster,pch=&quot;.&quot;)</span>
-<span class="co">#for(i in 1:length(cluster$size)) {</span>
-<span class="co">#plot(as.matrix(data) %*% cluster$subspaces[[i]], col = cluster$cluster, ylab #= paste(&quot;Identified subspace for cluster&quot;,i))</span>
-<span class="co">#}</span>
-
-<span class="co">#for(i in 1:length(cluster$size)) {</span>
-<span class="co">#mask &lt;- cluster$cluster==i</span>
-<span class="co">#plot(data[,1],data[,6],col=&quot;black&quot;,pch=&quot;.&quot;)</span>
-<span class="co">#points(data[mask,1],data[mask,6],col=&quot;red&quot;,pch=16,cex=.5)</span>
-<span class="co">#}</span></code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;orclus&quot;</span>)
+cluster &lt;-<span class="st"> </span><span class="kw">orclus</span>(data,<span class="dt">k=</span><span class="dv">10</span>,<span class="dt">l=</span><span class="dv">3</span>,<span class="dt">k0=</span><span class="dv">50</span>,<span class="dt">inner.loops=</span><span class="dv">20</span>)</code></pre>
+<pre><code>## iteration         : 1 
+## Initialization with 50 clusters 
+## Actual Subspace dimension : 6 
+## New number of clusters    : 25 
+## 
+## iteration         : 2 
+## Actual Subspace dimension : 4 
+## New number of clusters    : 12 
+## 
+## iteration         : 3 
+## Actual Subspace dimension : 3 
+## New number of clusters    : 10 
+## 
+## Final reassigment...</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">6</span>],<span class="dt">col=</span>cluster$cluster,<span class="dt">pch=</span><span class="st">&quot;.&quot;</span>)</code></pre>
+<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">for(i in <span class="dv">1</span>:<span class="kw">length</span>(cluster$size)) {
+<span class="kw">plot</span>(<span class="kw">as.matrix</span>(data) %*%<span class="st"> </span>cluster$subspaces[[i]], <span class="dt">col =</span> cluster$cluster, <span class="dt">ylab =</span> <span class="kw">paste</span>(<span class="st">&quot;Identified subspace for cluster&quot;</span>,i))
+}</code></pre>
+<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-2.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-3.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-4.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-5.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-6.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-7.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-8.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-9.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-10.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-11.png" width="672" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">for(i in <span class="dv">1</span>:<span class="kw">length</span>(cluster$size)) {
+mask &lt;-<span class="st"> </span>cluster$cluster==i
+<span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">6</span>],<span class="dt">col=</span><span class="st">&quot;black&quot;</span>,<span class="dt">pch=</span><span class="st">&quot;.&quot;</span>)
+<span class="kw">points</span>(data[mask,<span class="dv">1</span>],data[mask,<span class="dv">6</span>],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">5</span>)
+}</code></pre>
+<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-12.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-13.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-14.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-15.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-16.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-17.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-18.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-19.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-20.png" width="672" /><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-23-21.png" width="672" /></p>
 </div>
 <div id="spectral-clustering" class="section level2">
 <h2>Spectral clustering</h2>

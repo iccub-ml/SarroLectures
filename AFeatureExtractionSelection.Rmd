@@ -767,7 +767,7 @@ B <- rmvnorm(1000,c(0,2),matrix(c(6,0,0,1),2,2))
 
 training <- rbind(A,B)
 
-plot(A,pch=16,col="orange",xlim=c(-5,10),ylim=c(-7.5,7.5),xlab="Feature #1",ylab="Feature #2")
+plot(A,pch=16,col="orange",xlim=c(-8,8),ylim=c(-5,7.5),xlab="Feature #1",ylab="Feature #2")
 points(B,pch=15,col="blue")
 
 pca <- princomp(training)

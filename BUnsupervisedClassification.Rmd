@@ -484,7 +484,15 @@ plot(cluster, type="count")
 
 
 
-## Hierarchical (connectivity based) clustering
+## Hierarchical agglomerative (connectivity based) clustering
+
+Start with one cluster per data point, and iteratively merge at each steps the two clusters that are 'closer' together, with distance between clusters  measured as:
+* **single-linkage** the minimum distance amongst all pairs of points that we can define with one in cluster $C_i$ and another in cluster $C_j$
+* **average linkage** the average distance amongst all pairs of points...
+* **complete linkage** the maximum distance for all pairs...
+* **centroid linkage** the distance between the centre of mass of each clusters, or the data point closer to it.
+* **minimum energy linkage** similar to the average linkage but a penalization term that include the intra-cluster variances for $C_i$ and $C_j$
+* **wards metric**: merge the two clusters that yield the smallest increase in the total intracluster variance.
 
 ```{r cache=F}
 dists <- dist(data)
@@ -507,7 +515,7 @@ clusters <- hclust(dists, method = 'average')
 clusterCut <- cutree(clusters, k=200)
 plot(data[,1],data[,4], col=clusterCut,pch=16,cex=.3)
 
-clusters <- hclust(dists, method = 'single')
+# clusters <- hclust(dists, method = 'single')
 clusterCut <- cutree(clusters, 200)
 plot(data[,1],data[,4], col=clusterCut,pch=16,cex=.3)
 
@@ -558,18 +566,18 @@ Problems:
 
 
 ```{r }
-#library("orclus")
-#cluster <- orclus(data,k=10,l=3,180,inner.loops=20)
-#plot(data[,1],data[,6],col=cluster$cluster,pch=".")
-#for(i in 1:length(cluster$size)) {
-#plot(as.matrix(data) %*% cluster$subspaces[[i]], col = cluster$cluster, ylab #= paste("Identified subspace for cluster",i))
-#}
+library("orclus")
+cluster <- orclus(data,k=10,l=3,k0=50,inner.loops=20)
+plot(data[,1],data[,6],col=cluster$cluster,pch=".")
+for(i in 1:length(cluster$size)) {
+plot(as.matrix(data) %*% cluster$subspaces[[i]], col = cluster$cluster, ylab = paste("Identified subspace for cluster",i))
+}
 
-#for(i in 1:length(cluster$size)) {
-#mask <- cluster$cluster==i
-#plot(data[,1],data[,6],col="black",pch=".")
-#points(data[mask,1],data[mask,6],col="red",pch=16,cex=.5)
-#}
+for(i in 1:length(cluster$size)) {
+mask <- cluster$cluster==i
+plot(data[,1],data[,6],col="black",pch=".")
+points(data[mask,1],data[mask,6],col="red",pch=16,cex=.5)
+}
 ```
 
 ## Spectral clustering

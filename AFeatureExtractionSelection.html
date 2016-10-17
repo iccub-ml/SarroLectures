@@ -1040,16 +1040,16 @@ B &lt;-<span class="st"> </span><span class="kw">rmvnorm</span>(<span class="dv"
 
 training &lt;-<span class="st"> </span><span class="kw">rbind</span>(A,B)
 
-<span class="kw">plot</span>(A,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">col=</span><span class="st">&quot;orange&quot;</span>,<span class="dt">xlim=</span><span class="kw">c</span>(-<span class="dv">5</span>,<span class="dv">10</span>),<span class="dt">ylim=</span><span class="kw">c</span>(-<span class="fl">7.5</span>,<span class="fl">7.5</span>),<span class="dt">xlab=</span><span class="st">&quot;Feature #1&quot;</span>,<span class="dt">ylab=</span><span class="st">&quot;Feature #2&quot;</span>)
+<span class="kw">plot</span>(A,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">col=</span><span class="st">&quot;orange&quot;</span>,<span class="dt">xlim=</span><span class="kw">c</span>(-<span class="dv">8</span>,<span class="dv">8</span>),<span class="dt">ylim=</span><span class="kw">c</span>(-<span class="dv">5</span>,<span class="fl">7.5</span>),<span class="dt">xlab=</span><span class="st">&quot;Feature #1&quot;</span>,<span class="dt">ylab=</span><span class="st">&quot;Feature #2&quot;</span>)
 <span class="kw">points</span>(B,<span class="dt">pch=</span><span class="dv">15</span>,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>)</code></pre>
 <p><img src="AFeatureExtractionSelection_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r">pca &lt;-<span class="st"> </span><span class="kw">princomp</span>(training)
 <span class="kw">summary</span>(pca)</code></pre>
 <pre><code>## Importance of components:
-##                          Comp.1   Comp.2
-## Standard deviation     2.428636 1.427134
-## Proportion of Variance 0.743325 0.256675
-## Cumulative Proportion  0.743325 1.000000</code></pre>
+##                           Comp.1    Comp.2
+## Standard deviation     2.4488450 1.4267340
+## Proportion of Variance 0.7465805 0.2534195
+## Cumulative Proportion  0.7465805 1.0000000</code></pre>
 </div>
 <div id="independent-component-analysis" class="section level3">
 <h3>Independent Component Analysis</h3>
