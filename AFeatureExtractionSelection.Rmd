@@ -23,15 +23,15 @@ knitr::opts_chunk$set(unnamed.chunk.label = "A")
 
 We have learnt in previous sessions how to construct (=train) statistical models from sets of examples (training sets) that can formulate predictions for previously unseen data (the prediction set).
 
-The construction of the training sets has not been covered in depth in this course, but it is one of the most critical stages of statistical learning. The training set will often be a sample of the population or universe to which our models will be applied. Amongst other, we should aim at collecting training sets that
+The construction of the training sets has not been covered in depth in this course, but it is one of the most critical stages of statistical learning. The training set will often be a sample of the population or universe to which our models will be applied. Amongst other requirements, we should aim at collecting training sets that
 
-1. represent the population prevalences, 
+1. represent as faithfully as possible the population probability density, 
 2. represent the population noise properties
 3. live in optimal representation spaces
 
 The representation space is the space of features (predictors, regressors, explanatory variables...) used to represent each training example (obvious!). These could be spectra, spectral energy distributions (SEDs), calorimeter images, energy loss, particle momentum...
 
-An optimal (in the sense of supervised learning) representation space is one that includes all features that convey information needed for the inference at stake, and minimizes redundancy.  
+An optimal (in the sense of supervised learning) representation space is one that includes all features that convey the information needed for the inference at stake, and minimizes redundancy.
 
 This informal definition leads us to the concepts of information, relevance, and redundancy. We will visit each of them during this session. 
 
@@ -44,9 +44,15 @@ Now, why should we want to use an optimal representation space? There are five m
 5. the less variables we need to build our models, the shorter the training times
 6. **to avoid the curse of dimensionality**
 
+In this session, we will start by looking precisely at the *curse of dimensionality*. Then. I will introduce a data set that I will (and you can) use to play with and illustrate some of the techniques for dimensionality reduction. Then, I will present a more mathematical definition of relevance using a somewhat artificial example. I hope this takes less than an hour.
 
-Feature selection techniques should be distinguished from feature extraction.
-While feature extraction creates new features by transforming and combining  the original features, feature selection only returns a subset of these original features. 
+The next block is named *The filter approach* and I will use it to introduce a few very important concepts, mainly from the field of Information Theory. This block will be about ranking predictors according to some Figures-of-Merit, the objective being to only retain predictors high in the ranks. Again, I hope this will take less than one hour.
+
+Then comes the coffee break: take the opportunity to eat/drink and ask me! Otherwise the second half may be boring...
+
+After the coffee break we will learn that rankings are not enough as they provide an insufficient picture that does not incorporate interactions between predictors. So, we will have to review a few simple strategies to search in the very wide landscape of feature subsets.As a code, I will introduce you to the other two strategies to feature selection: the wrapper approach and embedded feature selection.
+
+Finally, I will show you that feature selection techniques (the focus of the two previous blocks) should be distinguished from feature extraction. While feature extraction creates new features by transforming and combining  the original features, feature selection only returns a subset of these original features. And then, we will look at a handful of feature extraction techniques which I find specially appealing.
 
 
 #######################################################################
@@ -55,30 +61,24 @@ While feature extraction creates new features by transforming and combining  the
 
 ```{r echo=FALSE}
 require(plotrix)
-```
-
-Imagine that we are dealing with Gaia RVS spectra: 
-```{r echo=FALSE}
 n <- 1061
 ```
 
-These spectra are characterized by a wavelength coverage of 845–872 nm with R=11500. 
+Imagine that we are dealing with Gaia RVS spectra. These spectra are characterized by a wavelength coverage of 845–872 nm with R=11500. 
 
 ![](images/RVSexample.jpg)
 
-As you can see, the range is small but contains a number of spectral lines that are important diagnostics of the thermodynamic state of the stellar atmosphere.
+As you can see, the range is small but contains a number of spectral lines that are important diagnostics of the thermodynamic state of the stellar atmosphere. Therefore, one can think of the very useful task to predict this thermodynamic state (temperature, density, pressure, chemical composition) from observed spectra. This is a statistical regression problem, as we were taught in previous sessions. 
 
-Let us leave the physical analysis of the spectral lines for now and concentrate in the problem of handling feature spaces of the size of an RVS spectrum. It typically contains circa `r n` fluxes, many of which contain no information about the stellar physical parameters. This represents a `r n`-dimensional space. 
+Let us now concentrate in the problem of handling feature spaces of the size of an RVS spectrum. It typically contains circa `r n` fluxes, many of which contain no information about the stellar physical parameters. This represents a `r n`-dimensional space. 
 
-Now, imagine a set of example RVS spectra from stars of many different temperatures (surface gravities, metallicities...). Our aim is to construct a model that predicts temperatures from an observed spectrum. Let us do it using one of the most simple models at hand: the k-nearest neighbours (kNN). kNN will receive an observed spectrum and look for the k closest spectra in the set of examples. What do you think would be a reasonable value for k? Let us start with k=1: we will attach to the observed spectrum the temperature of the example that is closest in some to-be-determined sense.
+Now, imagine a set of example RVS spectra from stars of many different temperatures (surface gravities, metallicities...). Our aim is to construct a model that predicts temperatures from an observed spectrum. Let us do it using one of the most simple models at hand: the $k$-nearest neighbours (kNN). kNN will receive an observed spectrum and look for the $k$ closest spectra in the set of examples. What do you think would be a reasonable value for $k$? Let us start with k=1: we will attach to the observed spectrum the temperature of the example that is **closest** in some to-be-determined sense.
 
-Now, for the sake of clarity, let us rescale each observed flux between 0 and 1. This is not necessary, but helps visualize the problem. We, of course, use the same rescaling for the observed spectrum and for the training set.
+Now, for the sake of clarity, let us rescale each observed flux between 0 and 1. This is not necessary, but helps visualize the problem. We, of course, use the same rescaling for the observed spectrum and for the training set. After rescaling, our data set occupies a unit hypercube in `r n` dimensions. 
 
-After rescaling, our data set occupies a unit hypercube in `r n` dimensions. 
+Now, let us ask ourselves how many examples we need to ensure that the **closest** example (in the to-be-determined sense) is not further than a 10% of the total range [0,1] in each flux. This is already very far! So one would naïvely expect that this loose requirement leads to a need for few training examples. 
 
-Now, let us ask ourselves how many examples do we need to ensure that the closest example (in the to-be-determined sense) is not further than one particular example: one example that differs from our observed spectrum by a 10% of the total range [0,1] in each flux. This is already very far! So one would naïvely expect that this loose requirement leads to a need for few training examples. 
-
-If our spectra had only 2 measured fluxes, this furthest allowed example would be at a distance equal to $\sqrt{0.1^2+0.1^2}$=`r sqrt(0.1^2+0.1^2)`.
+If our spectra had only 2 measured fluxes, this furthest example would be at a distance equal to $\sqrt{0.1^2+0.1^2}$=`r sqrt(0.1^2+0.1^2)`.
 
 ```{r}
 plot(cbind(0,0),xlim=c(0,1),ylim=c(0,1),xlab="feature #1",ylab="feature #2",col="white")
@@ -91,7 +91,7 @@ How many examples do we need to ensure that there is always an example within a 
 
 That is roughly 16 examples distributed homogeneously in the 2D square.
 
-Let us now look at the true RVS space. The hypercube volume still is 1, but the volume of the hypersphere in $n$ dimensions is now $\frac{2\cdot r^d*\pi^{n/2}}{\Gamma(n/2)}$. Our RVS spectra have `r n` fluxes,  so if we still enforce that the farthest example is at most at a 10% in each dimension, the examples have to be closer than $$d=\sqrt{\sum_{i=1}^{n} 0.1^2}.$$ That is, there has to be an example at a distance d<`r sqrt(n*0.1^2)`.
+Let us now look at the true RVS space. The hypercube volume still is 1, but the volume of the hypersphere in $n$ dimensions is now $\frac{2\cdot r^d*\pi^{n/2}}{\Gamma(n/2)}$. Our RVS spectra have `r n` fluxes,  so if we still enforce that the farthest example is at most at a 10% in each dimension, the examples have to be **closer** than $$d=\sqrt{\sum_{i=1}^{n} 0.1^2}.$$ That is, there has to be an example at a distance d<`r sqrt(n*0.1^2)`.
 
 How many examples do we need to ensure that there is at least one within a circle of radius `r sqrt(n*0.1^2)`? 
 
@@ -109,11 +109,11 @@ $$\frac{1}{\exp(logVsphere)}$$ examples or, in natural logarithmic units (otherw
 
 we would need 10^`r as.integer(log(1)-logVsphere)` examples. This is just unfeasible.
 
-So if we go kNN, it is unthinkable that we can gather a large enough set of training examples such that the closest example is at a distance shorter than that implied by a 10% difference in each feature. A10%! That is a lot.
+So if we go kNN, it is unthinkable that we can gather a large enough set of training examples such that the closest example is at a distance shorter than that implied by a 10% difference in each feature. A 10%! That is a lot.
 
 There are other ways to visualize this curse-of-dimensionality. But in practice they all imply an exponentially increasing training set size with increasing space dimensionality. Or conversely, it implies that for a fixed training set size, the predictive power degrades with the dimensionality of the space (the so-called Hughes phenomenon). 
 
-
+OK. I have been cheatin a little bit here. This hypercube thing does not apply to the RVS spectra described before, but the reasons will become clear towards the end of today.. 
 
 #######################################################################
 
@@ -123,7 +123,7 @@ In the following, we will apply a series of feature selection or feature extract
 
 This is not the full dataset used to train the Machine Learning algorithms that will run as part of the Gaia Data Processing and Analysis. Only a tiny subset selected to be at the same time illuminating for you, and manageable within the school lecture durations.
 
-It was selected by forcing the stellar metallicities and alpha abundances to be solar, and then sampling randomly in magnitude. Furthermore, the radial velocities and rotational velocities are negligible.
+It was selected by forcing the stellar metallicities and alpha abundances to be solar, and then extracting only a set representative of a single apparent brightness (G=12). Furthermore, the radial velocities and rotational velocities are negligible.
 
 Finally, all spectra have been normalized to unit area. That is, the area under each spectrum is 1 (in the somewhat awkward units of pixel position). We have done this because the actual value of the observed fluxes carry no information on any of the physical parameters (this is not exactly so, but let's assume it for the sake of simplicity). We could have exactly the same star at two wildly different distances and therefore, very different observed fluxes. 
 
@@ -205,16 +205,6 @@ save.image()
 
 ```
 
-Let us keep this very simplified dataset (40 spectra corresponding to stars of $log(T_{\rm eff})=3.9$ and only 6 different values of the surface gravity)
-
-```{r}
-
-small.spec <- Spec[mask,]
-small.param <- StPa[mask,]
-  
-```
-
-
 #######################################################################
 
 ## Relevance
@@ -268,7 +258,11 @@ Now, for the definitions. This is the particular set I (and a vast majority of t
 * A feature $X_i$ is weakly relevant if and only if it is not strongly relevant and there exists $x_i$, $y$, and $s'_i$ for which $$p(X_i = x_i, S'_i = s'_i) > 0$$ such that $$p(Y=y|X_i=x_i,S'_i=s'_i) \neq p(Y=y|S'_i=s'_i)$$
 * A feature $X_i$ is irrelevant if it is not relevant (in any sense).
 
-These are all theoretical definitions. In practice, because the training set is but a sample from the population, these black/white definitions expand to form a full grey-scale. And actually, due to the noise, there would not be irrelevant features. Therefore, more pragmatic approaches are needed.
+Even if the probability for the class given $X_5$ is 0.5, our training set sample is precisely that: a sample from the probability. Even if it is unbiased, we may end up with an imbalance of, for example, 40%/60%, and this could be more than we would have for truly relevan variables.  
+
+So, lesson to take home: **the training set is an imperfect representation of the underlying population, and we should do our best to avoid learning the noise (=overfitting)**.
+
+OK. These are all theoretical definitions. In practice, because the training set is but a sample from the population, these black/white definitions expand to form a full grey-scale. And actually, due to the noise, there would not be irrelevant features. Therefore, more pragmatic approaches are needed. 
 
 #######################################################################
 
@@ -415,7 +409,7 @@ Now, $H(x)$ is larger for variables with large supports.
 x <- rep(1/10,10)
 -sum(x*log(x))
 y <- rep(1/100,100)
--sum(x*log(y))
+-sum(y*log(y))
 
 ```
 
@@ -487,7 +481,9 @@ plot(gainratio.score[,1],pearson.score[,1],pch=16,col="blue",cex=.7)
 
 ## Redundancy 
 
-In the XOR example, there was redundancy between the two sets $\{X_4\}$ and $\{X_2,X_3\}$. We can build two decision trees that  
+In the XOR example, there was redundancy between the two sets $\{X_4\}$ and $\{X_2,X_3\}$. 
+
+We can build two bayesian network classifiers based on two different training sets, both with 64 examples. In the first case, we simply replicate the universe 4 times (16x4=64). In the second case, we draw samples at random from the unverse (data2).
 
 ``` {r }
 set.seed(0)
@@ -495,29 +491,46 @@ require("bnlearn")
 data1 <- rbind(cases,cases,cases,cases)
 data2 <- as.integer(runif(64)*10)
 data2 <- cases[data2,]
+```
 
+Now, let us look at the frequencies in the two datasets...
+
+```{r }
 data1 <- as.data.frame(apply(data1,2,as.factor))
 data2 <- as.data.frame(apply(data2,2,as.factor))
 
-sum(data1[,5]==0 & data1[,6] == 0)
-sum(data1[,5]==1 & data1[,6] == 0)
-sum(data1[,5]==0 & data1[,6] == 1)
-sum(data1[,5]==1 & data1[,6] == 1)
+cases1 <- matrix(NA,2,2)
+cases1 [1,1] <- sum(data1[,5]==0 & data1[,6] == 0)
+cases1 [2,1] <- sum(data1[,5]==1 & data1[,6] == 0)
+cases1 [1,2] <- sum(data1[,5]==0 & data1[,6] == 1)
+cases1 [2,2] <- sum(data1[,5]==1 & data1[,6] == 1)
+kable(cases1,col.names = c("x5","class"))
 
-sum(data2[,5]==0 & data2[,6] == 0)
-sum(data2[,5]==1 & data2[,6] == 0)
-sum(data2[,5]==0 & data2[,6] == 1)
-sum(data2[,5]==1 & data2[,6] == 1)
+cases2 <- matrix(NA,2,2)
+cases2 [1,1] <- sum(data2[,5]==0 & data2[,6] == 0)
+cases2 [2,1] <- sum(data2[,5]==1 & data2[,6] == 0)
+cases2 [1,2] <- sum(data2[,5]==0 & data2[,6] == 1)
+cases2 [2,2] <- sum(data2[,5]==1 & data2[,6] == 1)
+kable(cases1,col.names = c("x5","class"))
+```
 
+This is a nice example of how the sampling process that is inherent to building a training set naturally introduces unwanted spurious correlations even for irrelevant variables.
+
+Now, let us build a Bayes Network to predict classes for the XOR problem:
+
+```{r}
 res = tabu(data1,score="bic")
 plot(res)
 fitted <- bn.fit(res,data=data1)
 cpquery(fitted,(class==1),(x1=="1" & x4=="0"))
+```
 
+And now, for the random sample:
+
+```{r}
 res = tabu(data2,score="bic")
 plot(res)
 fitted <- bn.fit(res,data=data1)
-summary(fitted)
 cpquery(fitted,(class==1),(x1=="1" & x4=="0"))
 
 ```
@@ -540,7 +553,7 @@ Beware:
 
 ## Subset selection
 
-We have seen that an *a priori* optimal feature set maximizes relevance and minimizes redundancy. This takes to the problem of selecting feature subsets rather than ranking features, which is what we have done so far.
+We have seen that an *a priori* optimal feature set maximizes relevance and minimizes redundancy. This takes us to the problem of selecting feature subsets rather than ranking features, which is what we have done so far.
 
 The first score that I will introduce is the so-called Correlation-based Feature Subset Selection (CFS). It values the merit of a feature subset with the following Figure-of-Merit
 
@@ -582,9 +595,7 @@ Another choice would be the so-called consistency. It is defined as
 
 Now, you can create your own score by combining the individual scores presented in previous blocks. The problem is not inventing new scores. The problem now is the large number of possibilities to try. So, a brief overview of searching is timely...
 
-### Searching in the space of feature subsets: 
-
-## Greedy Forward search
+### Greedy Forward search
 
 Start with the empty set and add at each step the attribute that yields the best score after inclusion. Stop when the inclusion of an attribute yields no further improvement.
 
@@ -593,7 +604,7 @@ FS.subset <- forward.search(attributes,cfs)
 ```
 
 
-## Greedy Backward elimination
+### Greedy Backward elimination
 
 Start with the full set of attributes and remove at each step the attribute the yields the best score after elimination. Stop when removal of any attribute significantly degrades the score (with a tolerance to be defined).
 
@@ -601,7 +612,7 @@ Start with the full set of attributes and remove at each step the attribute the 
 # Do not run: it takes too long
 # BS.subset <- backward.search(attributes,cfs)
 ```
-## Best first
+### Best first
 
 Best first explores the tree and keeps a (possibly abridged) list of explored nodes. Each time, the best proposal in the list (in the sense provided by a given FoM) is chosen for expansion by adding one more predictor. It allows backtracking if a series of $n_{fail}$ steps did not succeed to improve the FoM.
 
@@ -612,7 +623,7 @@ BF.subset <- best.first.search(attributes, cfs)
 
 The function *consistency* uses Best First to navigate the tree of all possible subsets.
 
-## Exhaustive search
+### Exhaustive search
 
 ```{r}
 # DON'T RUN! IT TAKES AGES!
@@ -668,6 +679,9 @@ subset.wrapperscore <- function(subset){
 
 ## Embedded feature selection
 
+Now for the last strategy, we have seen that some supervised classification algorithms include feature selection as part of the learning process. Trees classify in each node according to the value of one or several predictors. Actually, the do so by using metrics like those we introduced before: mutual information. Random forests can provide us with a bootstrap sample of what predictors were chosen that yielded the lowest node impurity or best Gini coefficient.
+
+
 ### Random Forests
 
 ```{r }
@@ -678,9 +692,16 @@ subset.wrapperscore <- function(subset){
 
 ```
 
-### Lasso and Ridge regression
+Fom a wider perspective, we generally attempt to follow the example of Occam in chosing the less complex model that achieves optimal performance. René and Gilles talked about this yesterday, probably less that they would have liked to, and the topic deserves. 
 
-### Weight decay in neural networks
+Sometimes, taking the naïve approach that a model complexity is given by its number of parameters, we may end up selecting features. Take the usual scoring rules for model selection:
+
+$$
+BIC = -\log p(D|\Omega)+k\log(n)
+AIC = -\log p(D|\Omega)+2\log(n)
+$$
+
+The number of parameters usually decreases if we prune inputs from the model, although regularization does not necessarily lead to feature selection. Examples of this approach can be the Lasso and Ridge regression or the weight decay in neural networks.
 
 #######################################################################
 
@@ -692,7 +713,7 @@ Basic assumption: the most informative directions in feature space are those tha
 
 Hence, we fit an ellipsoid to the data. If the data are $n$-dimensional, so will be the ellipsoid. This ellipsoid will (in general) not be aligned with the original axes. The longest axes of the ellipsoid are those that retain most of the information.
 
-I will skip the algebraic details (although for the particle physics community here they would trivial). In brief, we will be diagonalizing the covariance matrix, and the axes of the new basis (the eigenvectors) will be the axes of the ellipsoid. The eigenvalue represents the length of the vector or, in other words, the percentage of variance explained by that direction.
+I will skip the algebraic details (although they aretrivial). In brief, we will be diagonalizing the covariance matrix, and the axes of the new basis (the eigenvectors) will be the axes of the ellipsoid. The eigenvalue represents the length of the vector or, in other words, the percentage of variance explained by that direction.
 
 Of course, the new base where the covariance is diagonal will be made up of linear combination of the vectors of the original base. Or, in other words, the new features will be linear combinations of the original ones. 
 
@@ -735,12 +756,28 @@ points(B,pch=15,col="blue")
 arrows(x0=pca$center[1],y0=pca$center[2],x1=pca$center[1]+pca$sdev[1]*pca$loadings[1,1],y1=pca$center[2]+pca$sdev[1]*pca$loadings[2,1],col="darkgreen",lwd=2)
 arrows(x0=pca$center[1],y0=pca$center[2],x1=pca$center[1]+pca$sdev[2]*pca$loadings[1,2],y1=pca$center[2]+pca$sdev[2]*pca$loadings[2,2],col="darkgreen",lwd=2)
 ```
+Now, for the second example:
 
+
+```{r}
+
+require("mvtnorm")
+A <- rmvnorm(1000,c(0,0),matrix(c(6,0,0,1),2,2))
+B <- rmvnorm(1000,c(0,2),matrix(c(6,0,0,1),2,2))
+
+training <- rbind(A,B)
+
+plot(A,pch=16,col="orange",xlim=c(-5,10),ylim=c(-7.5,7.5),xlab="Feature #1",ylab="Feature #2")
+points(B,pch=15,col="blue")
+
+pca <- princomp(training)
+summary(pca)
+```
 
 
 ### Independent Component Analysis
 
-Principal component analysis identifies uncorrelated components from correlated variables, and a few of these uncorrelated components usually account for most of the information in the input variables. Researchers interpret each component as a separate entity representing a latent trait or profile in a population. However, the components are guaranteed to be independent and uncorrelated only when the multivariate normality of the variables is assumed. If the normality assumption does not hold, components are guaranteed to be uncorrelated, but not independent. If the independence assumption is violated, each component cannot be uniquely interpreted because of contamination by other components. 
+"Principal component analysis identifies uncorrelated components from correlated variables, and a few of these uncorrelated components usually account for most of the *information* (No! variance) in the input variables. (...) However, the components are guaranteed to be independent and uncorrelated only when the multivariate normality of the variables is assumed. If the normality assumption does not hold, components are guaranteed to be uncorrelated, but not independent. If the independence assumption is violated, each component cannot be uniquely interpreted because of contamination by other components."
 
 A very intuitive way to understand ICA is to think of the cocktail party problem, where we have N microphones spread all over a room where people talk in groups. Each microphone is sensitive enough that records (albeit with different intensities) all the conversations.
 
@@ -834,14 +871,10 @@ $$
 
 "Vitally,  the same weights  would  work  to  reconstruct $x_i$ both in the high-dimensional embedding space and the low-dimensional subspace.  This means that it is the weights around a given point which characterize what the manifold looks like there (provided the neighborhood is small enough compared to the curvature).  Finding the weights gives us the same information as  finding the tangent space.  This is why, in the last step, we will only need the weights, not the original vectors."
 
-3. and  finally  finds the low-dimensional coordinates $y_i$ best reconstructed by those weights.  
-
-
-
+3. and  finally  finds the low-dimensional coordinates $y_i$ best reconstructed by those weights.
 $$
 y_i = \sum_{j\in\epsilon_i} w_{ij}y_j 
 $$
-
 again, by minimizing the RSS.
 
 These low-dimensional coordinates are then returned.
@@ -855,7 +888,6 @@ library(lle)
 df2 <- df[,-dim(df)[2]]
 #k = calc_k(df2,m=25)
 lle <- lle(df2,m=10,k=12)
-
 
 
 library(rgl)
