@@ -697,8 +697,8 @@ Fom a wider perspective, we generally attempt to follow the example of Occam in 
 Sometimes, taking the naïve approach that a model complexity is given by its number of parameters, we may end up selecting features. Take the usual scoring rules for model selection:
 
 $$
-BIC = -\log p(D|\Omega)+k\log(n)
-AIC = -\log p(D|\Omega)+2\log(n)
+BIC = -2\log p(D|\Omega)+k\log(n)
+AIC = -2\log p(D|\Omega)+2\cdot k
 $$
 
 The number of parameters usually decreases if we prune inputs from the model, although regularization does not necessarily lead to feature selection. Examples of this approach can be the Lasso and Ridge regression or the weight decay in neural networks.

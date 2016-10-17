@@ -31,7 +31,9 @@ plot(mock.data)
 
 ```
 
-### The Expectation-Maximization algorithm
+### The k-means algorithm
+
+$K$-means is a very popular and simple iterative algorithm for clustering. Let us learn its steps with the very simple 2 cluster 2D problem.
 
 We start by randomly selecting two points that we will take as starting solution.
 
@@ -43,15 +45,15 @@ points(mock.data[rc,],pch=16,col="seagreen",cex=2)
 
 We will then take this two points as the centres of the two clusters. We could have tried three or more clusters.
 
-If these two points are the centres of the two clusters, each cluster will be made up of the points that are closer to each centre. Closer is a word that implies many things. In particular, it implies a distance and a metric. In the following, I will assume that the metric is Euclidean, but you have various choices (Euclidean, Manhattan, L$\infty$) that you should consider before applying (most) clustering algorithms. 
+If these two points are the centres of the two clusters, each cluster will be made up of the points that are closer to each centre. Closer is a word that implies many things. In particular, it implies a distance and a metric. In the following, I will assume that the metric is Euclidean, but you have various choices (Euclidean, Manhattan, L$_\infty$) that you should consider before applying (most) clustering algorithms. 
 
 A quote from [Elements of Statistical Learning](http://www-stat.stanford.edu/~tibs/ElemStatLearn/)
 
 "An appropriate dissimilarity measure is far more important in obtaining success with clustering than choice of clustering algorithm. This aspect of the problem ... depends on domain specific knowledge and is less amenable to general research."
 
-If you decide to use the euclidean distance, take into account is definition:
+If you decide to use the euclidean distance, take into account its definition:
 
-$d(x,y) <- sqrt(\sum_i^n (x_i-y_i)^2)$
+$d(\mathbb{x},\mathbb{y}) = \sqrt(\sum_i^n (x_i-y_i)^2)$
 
 If dimension $i$ has a range between 0 and, say, $10^6$ while dimension $j$ only goes from 0 to 1, differences in $i$ will dominate the distance even if they only reflect noise.
 
@@ -99,7 +101,7 @@ points(mock.data[rc,],pch=16,col="seagreen",cex=2)
 
 ```
 
-We see that this assignment produces a linear boundary defined by the points at the same distance from the two centres. But it does not look right. This is because we have only taken the first step of $k$-means.
+We see that this assignment produces a linear boundary defined by the points at the same distance from the two centres. But it does not look right. This is because we have only taken the first step of a $k$-means cycle.
 
 The second step consists of recalculating the positions of the cluster centres given the cluster assignments (partition) above:
 
@@ -125,11 +127,10 @@ points(means,pch=16,col="green",cex=2)
 
 So far, we have taken several decisions: 
 1. we have chosen to measure (dis-)similarity between elements using the euclidean distance;
-2. we decided to attach a label (cluster) depending to the minimum distance to the centres; 
+2. we decided to attach a label (cluster) depending on the minimum distance to the centres; 
 3. and finally, we have decided to recalculate the cluster centres as the **mean** of (and only of) the points with a given cluster label (we could have used the median, or the closest point to the mean or the median, or...)
 
 Now, let us redo the cycle (steps 1 and 2) one more time:
-
 
 ```{r}
 cluster <- E(mock.data,means)
@@ -217,7 +218,7 @@ plot(logP,WI,pch=".",col=km25.ogle$cluster)
 points(km25.ogle$centers[,c(1,6)],col=seq(1,25),pch=16,cex=2)
 ```
 
-OK: we see that eclipsing binaries are separated from the RR Lyrae stars. But the Lpng Period Variables sequences are mixed up, despite their being clearly separated in this 2D projection.
+OK: we see that eclipsing binaries are separated from the RR Lyrae stars. But the Long Period Variables sequences are mixed up, despite their being clearly separated in this 2D projection.
 
 Let us try a different random seed, just to check that this was not a poor initialization:
 
@@ -248,14 +249,13 @@ points(km25.ogle$centers[,c(1,5)],col=seq(1,25),pch=16,cex=2)
 
 A bit better, but still insatisfactory. One would wish to remove the dependency on the random initialization, and have a guide as to how many clusters there actually are in the data. More on this later...
 
-
 ## Expectation-Maximization
 
-OK. $k$-means is just an algorithm that represents a special case of a more general  one known as Expectation-Maximization. 
+OK. $k$-means is just an algorithm that represents a special case of a more general one known as Expectation-Maximization. 
 
 I will show you what it is by working out a practical example (learn by doing).
 
-First, let me generate again a synthetic data set taylor to highlight the main advantage of going from the particular ($k$-means) to the general:
+First, let me generate again a synthetic data set taylored to highlight the main advantage of going from the particular ($k$-means) to the general:
 
 ```{r }
 set.seed(10)
@@ -304,7 +304,7 @@ loglikNormal <- function(D,means,Sigmas,cluster){
 }
 ```
 
-It has for parameters: the data, the means and covariance matrices of the normal distributions, and... the cluster assignements! For three clusters and 3000 points, we have 6+9+3000. And this is 2D only.
+It has four parameters: the data, the means and covariance matrices of the normal distributions, and... the cluster assignements! For three clusters and 3000 points, we have 6+9+3000. And this is 2D only.
 
 The space of parameters is *HUGE*: the means, the covariance matrices, and partitions! It is impossible that we test all possible combinations these 3015 parameters. How could we conceivably compute the likelihood in this high-dimensional space?
 
@@ -412,8 +412,6 @@ if(ndiff==0) break
 
 ## Density based clustering
 
-
-
 ```{r }
 library("dbscan")
 cluster <- dbscan(data[,-4],minPts = 5, eps=0.02)
@@ -434,41 +432,57 @@ res <- optics_cut(cluster, eps_cl = 0.0195)
 mask <- res$cluster != 0
 column <- 6
 plot(data[,c(1,column)],pch=".")
-points(data[mask,c(1,column)],pch=16,cex=.5,col=res$cluster[mask]+2)
-
+points(data[mask,c(1,column)],pch=16,cex=.5,col=res$cluster[mask]+1)
 
 plot(data[,c(1,2)],pch=".")
-points(data[mask,c(1,2)],pch=16,cex=.2,col=(cluster$cluster[mask]+1))
+points(data[mask,c(1,2)],pch=16,cex=.5,col=(res$cluster[mask]+1))
 plot(data[,c(1,3)],pch=".")
-points(data[mask,c(1,3)],pch=16,cex=.2,col=(cluster$cluster[mask]+1))
+points(data[mask,c(1,3)],pch=16,cex=.2,col=(res$cluster[mask]+1))
 plot(data[,c(1,4)],pch=".")
-points(data[mask,c(1,4)],pch=16,cex=.2,col=(cluster$cluster[mask]+1))
+points(data[mask,c(1,4)],pch=16,cex=.2,col=(res$cluster[mask]+1))
 plot(data[,c(1,5)],pch=".")
-points(data[mask,c(1,5)],pch=16,cex=.2,col=(cluster$cluster[mask]+1))
+points(data[mask,c(1,5)],pch=16,cex=.2,col=(res$cluster[mask]+1))
 
 apply(data,2,range)
 ```
+
+Now, I would like you to play with the dbscan or optics parameters and see if you can find a way to separate all variability types.
 
 When I had to deal with this dataset, I actually used a different algorithm known a Hierarchical Mode Association Clustering (HMAC). 
 
 ![](images/HMAC-paper.jpg) 
 
-
 ## Kohonen
+
+Scheme:
+
+1. Define 2D grid of neurons. Each neuron will be fully connected to the input neurons and be characterized by a vector of weights $\mathbb{w}_i$. Initially, these vectors are drawn at random from a given distribution (e.g. the first 2 PCA components). 
+2. Define a neighbourhood for each neuron.
+3. take the first data point $\mathbb{x}_1$ and calculate for each grid neuron the euclidean distance between the data point and each of the weight vectors $\mathbb{w}_i$.
+4. Select the neuron that is closest to the input data and update its weight and those of the neurons in the neighbourhood according to 
+$$
+\mathbb{w}' = \mathbb{w}+\alpha(t,d_grid)\cdot(\mathbb{x}_1-\mathbb{w})
+$$
+5. Repeat steps 3. and 4. for all data points $i:2,...,N$ 
+6. Repeat steps 3. to 5. until convergence or a maximum number of cycles is achieved
+
+
 
 ```{r }
 plot(mock.data)
 library("kohonen")
 library("fields")
 cluster <- som(mock.data)
-plot(cluster, type="code")
-plot(cluster, type="changes")
+plot(cluster, type="code", main="Main") 
+plot(cluster, type="changes", main="Changes")
 plot(cluster, type = "property", property = cluster$codes[,2], main=names(cluster$data)[2], palette.name=tim.colors)
 plot(cluster, type="dist.neighbours")
 plot(cluster, type="count")
 
 
 ```
+
+
 
 ## Hierarchical (connectivity based) clustering
 
