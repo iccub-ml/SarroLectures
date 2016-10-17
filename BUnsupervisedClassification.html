@@ -685,8 +685,8 @@ cluster &lt;-<span class="st"> </span><span class="kw">som</span>(mock.data)
 </div>
 <div id="hierarchical-connectivity-based-clustering" class="section level2">
 <h2>Hierarchical (connectivity based) clustering</h2>
-<pre class="sourceCode r"><code class="sourceCode r">##dists &lt;- dist(data)
-##clusters &lt;- hclust(dists, method = &#39;average&#39;)
+<pre class="sourceCode r"><code class="sourceCode r">dists &lt;-<span class="st"> </span><span class="kw">dist</span>(data)
+clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <span class="dt">method =</span> <span class="st">&#39;average&#39;</span>)
 <span class="co">#clusters &lt;- hclust(dists, method = &#39;ward.D&#39;)</span>
 <span class="co">#clusters &lt;- hclust(dists, method = &#39;ward.D2&#39;)</span>
 <span class="co">#clusters &lt;- hclust(dists, method = &#39;single&#39;)</span>
@@ -694,21 +694,23 @@ cluster &lt;-<span class="st"> </span><span class="kw">som</span>(mock.data)
 <span class="co">#clusters &lt;- hclust(dists, method = &#39;centroid&#39;)</span>
 <span class="co">#clusters &lt;- hclust(dists, method = &#39;median&#39;)</span>
 <span class="co">#clusters &lt;- hclust(dists, method = &#39;mcquitty&#39;)</span>
-##plot(clusters)
-##clusterCut &lt;- cutree(clusters, 15)
-##plot(data[,1],data[,6], col=clusterCut,pch=16,cex=.3)
-##clusterCut &lt;- cutree(clusters, 200)
-##plot(data[,1],data[,4], col=clusterCut,pch=16,cex=.3)
-
-##dists &lt;- dist(data[,-4])
-##clusters &lt;- hclust(dists, method = &#39;average&#39;)
-##clusterCut &lt;- cutree(clusters, 200)
-##plot(data[,1],data[,4], col=clusterCut,pch=16,cex=.3)
-
-##dists &lt;- dist(data[,-4])
-##clusters &lt;- hclust(dists, method = &#39;single&#39;)
-##clusterCut &lt;- cutree(clusters, 200)
-##plot(data[,1],data[,4], col=clusterCut,pch=16,cex=.3)</code></pre>
+<span class="kw">plot</span>(clusters)</code></pre>
+<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dv">15</span>)
+<span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">6</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
+<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-2.png" width="672" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dv">200</span>)
+<span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">4</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
+<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-3.png" width="672" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">dists &lt;-<span class="st"> </span><span class="kw">dist</span>(data[,-<span class="dv">4</span>])
+clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <span class="dt">method =</span> <span class="st">&#39;average&#39;</span>)
+clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dv">200</span>)
+<span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">4</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
+<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-4.png" width="672" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <span class="dt">method =</span> <span class="st">&#39;single&#39;</span>)
+clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dv">200</span>)
+<span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">4</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
+<p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-5.png" width="672" /></p>
 </div>
 <div id="subspace-clustering" class="section level2">
 <h2>Subspace clustering</h2>
