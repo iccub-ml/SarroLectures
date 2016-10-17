@@ -337,19 +337,20 @@ setB &lt;-<span class="st"> </span><span class="kw">rmvnorm</span>(<span class="
 mock.data &lt;-<span class="st"> </span><span class="kw">rbind</span>(setA,setB)
 <span class="kw">plot</span>(mock.data)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<div id="the-expectation-maximization-algorithm" class="section level3">
-<h3>The Expectation-Maximization algorithm</h3>
+<div id="the-k-means-algorithm" class="section level3">
+<h3>The k-means algorithm</h3>
+<p><span class="math">\(K\)</span>-means is a very popular and simple iterative algorithm for clustering. Let us learn its steps with the very simple 2 cluster 2D problem.</p>
 <p>We start by randomly selecting two points that we will take as starting solution.</p>
 <pre class="sourceCode r"><code class="sourceCode r">rc &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">dim</span>(mock.data)[<span class="dv">1</span>],<span class="dv">2</span>)
 <span class="kw">plot</span>(mock.data)
 <span class="kw">points</span>(mock.data[rc,],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">col=</span><span class="st">&quot;seagreen&quot;</span>,<span class="dt">cex=</span><span class="dv">2</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p>We will then take this two points as the centres of the two clusters. We could have tried three or more clusters.</p>
-<p>If these two points are the centres of the two clusters, each cluster will be made up of the points that are closer to each centre. Closer is a word that implies many things. In particular, it implies a distance and a metric. In the following, I will assume that the metric is Euclidean, but you have various choices (Euclidean, Manhattan, L<span class="math">\(\infty\)</span>) that you should consider before applying (most) clustering algorithms.</p>
+<p>If these two points are the centres of the two clusters, each cluster will be made up of the points that are closer to each centre. Closer is a word that implies many things. In particular, it implies a distance and a metric. In the following, I will assume that the metric is Euclidean, but you have various choices (Euclidean, Manhattan, L<span class="math">\(_\infty\)</span>) that you should consider before applying (most) clustering algorithms.</p>
 <p>A quote from <a href="http://www-stat.stanford.edu/~tibs/ElemStatLearn/">Elements of Statistical Learning</a></p>
 <p>“An appropriate dissimilarity measure is far more important in obtaining success with clustering than choice of clustering algorithm. This aspect of the problem … depends on domain specific knowledge and is less amenable to general research.”</p>
-<p>If you decide to use the euclidean distance, take into account is definition:</p>
-<p><span class="math">\(d(x,y) &lt;- sqrt(\sum_i^n (x_i-y_i)^2)\)</span></p>
+<p>If you decide to use the euclidean distance, take into account its definition:</p>
+<p><span class="math">\(d(\mathbb{x},\mathbb{y}) = \sqrt(\sum_i^n (x_i-y_i)^2)\)</span></p>
 <p>If dimension <span class="math">\(i\)</span> has a range between 0 and, say, <span class="math">\(10^6\)</span> while dimension <span class="math">\(j\)</span> only goes from 0 to 1, differences in <span class="math">\(i\)</span> will dominate the distance even if they only reflect noise.</p>
 <p>Also, the choice of metric dictates the position of the centres, as we shall see later.</p>
 <p>Now, we define a function to compute 2D distances:</p>
@@ -382,7 +383,7 @@ cluster &lt;-<span class="st"> </span><span class="kw">E</span>(mock.data,centre
 <span class="kw">plot</span>(mock.data,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">col=</span>cluster)
 <span class="kw">points</span>(mock.data[rc,],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">col=</span><span class="st">&quot;seagreen&quot;</span>,<span class="dt">cex=</span><span class="dv">2</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
-<p>We see that this assignment produces a linear boundary defined by the points at the same distance from the two centres. But it does not look right. This is because we have only taken the first step of <span class="math">\(k\)</span>-means.</p>
+<p>We see that this assignment produces a linear boundary defined by the points at the same distance from the two centres. But it does not look right. This is because we have only taken the first step of a <span class="math">\(k\)</span>-means cycle.</p>
 <p>The second step consists of recalculating the positions of the cluster centres given the cluster assignments (partition) above:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># We define a function to recalculate the centres...</span>
 M &lt;-<span class="st"> </span>function(data,cluster){
@@ -400,7 +401,7 @@ means &lt;-<span class="st"> </span><span class="kw">M</span>(mock.data,cluster)
 <span class="kw">points</span>(mock.data[rc,],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">col=</span><span class="st">&quot;seagreen&quot;</span>,<span class="dt">cex=</span><span class="dv">2</span>)
 <span class="kw">points</span>(means,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">col=</span><span class="st">&quot;green&quot;</span>,<span class="dt">cex=</span><span class="dv">2</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<p>So far, we have taken several decisions: 1. we have chosen to measure (dis-)similarity between elements using the euclidean distance; 2. we decided to attach a label (cluster) depending to the minimum distance to the centres; 3. and finally, we have decided to recalculate the cluster centres as the <strong>mean</strong> of (and only of) the points with a given cluster label (we could have used the median, or the closest point to the mean or the median, or…)</p>
+<p>So far, we have taken several decisions: 1. we have chosen to measure (dis-)similarity between elements using the euclidean distance; 2. we decided to attach a label (cluster) depending on the minimum distance to the centres; 3. and finally, we have decided to recalculate the cluster centres as the <strong>mean</strong> of (and only of) the points with a given cluster label (we could have used the median, or the closest point to the mean or the median, or…)</p>
 <p>Now, let us redo the cycle (steps 1 and 2) one more time:</p>
 <pre class="sourceCode r"><code class="sourceCode r">cluster &lt;-<span class="st"> </span><span class="kw">E</span>(mock.data,means)
 <span class="kw">plot</span>(mock.data,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">col=</span>cluster)
@@ -450,7 +451,7 @@ km25.ogle &lt;-<span class="st"> </span><span class="kw">kmeans</span>(data,<spa
 <span class="kw">plot</span>(logP,WI,<span class="dt">pch=</span><span class="st">&quot;.&quot;</span>,<span class="dt">col=</span>km25.ogle$cluster)
 <span class="kw">points</span>(km25.ogle$centers[,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">6</span>)],<span class="dt">col=</span><span class="kw">seq</span>(<span class="dv">1</span>,<span class="dv">25</span>),<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span><span class="dv">2</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
-<p>OK: we see that eclipsing binaries are separated from the RR Lyrae stars. But the Lpng Period Variables sequences are mixed up, despite their being clearly separated in this 2D projection.</p>
+<p>OK: we see that eclipsing binaries are separated from the RR Lyrae stars. But the Long Period Variables sequences are mixed up, despite their being clearly separated in this 2D projection.</p>
 <p>Let us try a different random seed, just to check that this was not a poor initialization:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">15</span>)
 km25.ogle &lt;-<span class="st"> </span><span class="kw">kmeans</span>(data,<span class="dv">25</span>,<span class="dt">iter.max=</span><span class="dv">20</span>)
@@ -473,7 +474,7 @@ km25.ogle &lt;-<span class="st"> </span><span class="kw">kmeans</span>(data[,-<s
 <h2>Expectation-Maximization</h2>
 <p>OK. <span class="math">\(k\)</span>-means is just an algorithm that represents a special case of a more general one known as Expectation-Maximization.</p>
 <p>I will show you what it is by working out a practical example (learn by doing).</p>
-<p>First, let me generate again a synthetic data set taylor to highlight the main advantage of going from the particular (<span class="math">\(k\)</span>-means) to the general:</p>
+<p>First, let me generate again a synthetic data set taylored to highlight the main advantage of going from the particular (<span class="math">\(k\)</span>-means) to the general:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">10</span>)
 setA &lt;-<span class="st"> </span><span class="kw">rmvnorm</span>(<span class="dv">1000</span>,<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),<span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">3</span>),<span class="dv">2</span>,<span class="dv">2</span>))
 setB &lt;-<span class="st"> </span><span class="kw">rmvnorm</span>(<span class="dv">1000</span>,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">3</span>),<span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="fl">0.99</span>,<span class="fl">0.99</span>,<span class="dv">1</span>),<span class="dv">2</span>,<span class="dv">2</span>))
@@ -504,7 +505,7 @@ mock.data &lt;-<span class="st"> </span><span class="kw">rbind</span>(setA,setB,
   }
   <span class="kw">return</span>(loglik)
 }</code></pre>
-<p>It has for parameters: the data, the means and covariance matrices of the normal distributions, and… the cluster assignements! For three clusters and 3000 points, we have 6+9+3000. And this is 2D only.</p>
+<p>It has four parameters: the data, the means and covariance matrices of the normal distributions, and… the cluster assignements! For three clusters and 3000 points, we have 6+9+3000. And this is 2D only.</p>
 <p>The space of parameters is <em>HUGE</em>: the means, the covariance matrices, and partitions! It is impossible that we test all possible combinations these 3015 parameters. How could we conceivably compute the likelihood in this high-dimensional space?</p>
 <p>Solution 1: the EM algorithm</p>
 <p>(Solution 2 is… go Bayesian and use MCMC!)</p>
@@ -629,24 +630,25 @@ res &lt;-<span class="st"> </span><span class="kw">optics_cut</span>(cluster, <s
 mask &lt;-<span class="st"> </span>res$cluster !=<span class="st"> </span><span class="dv">0</span>
 column &lt;-<span class="st"> </span><span class="dv">6</span>
 <span class="kw">plot</span>(data[,<span class="kw">c</span>(<span class="dv">1</span>,column)],<span class="dt">pch=</span><span class="st">&quot;.&quot;</span>)
-<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,column)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">5</span>,<span class="dt">col=</span>res$cluster[mask]+<span class="dv">2</span>)</code></pre>
+<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,column)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">5</span>,<span class="dt">col=</span>res$cluster[mask]+<span class="dv">1</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-20-6.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(data[,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)],<span class="dt">pch=</span><span class="st">&quot;.&quot;</span>)
-<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">2</span>,<span class="dt">col=</span>(cluster$cluster[mask]+<span class="dv">1</span>))</code></pre>
+<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">5</span>,<span class="dt">col=</span>(res$cluster[mask]+<span class="dv">1</span>))</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-20-7.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(data[,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>)],<span class="dt">pch=</span><span class="st">&quot;.&quot;</span>)
-<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">2</span>,<span class="dt">col=</span>(cluster$cluster[mask]+<span class="dv">1</span>))</code></pre>
+<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">2</span>,<span class="dt">col=</span>(res$cluster[mask]+<span class="dv">1</span>))</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-20-8.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(data[,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">4</span>)],<span class="dt">pch=</span><span class="st">&quot;.&quot;</span>)
-<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">4</span>)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">2</span>,<span class="dt">col=</span>(cluster$cluster[mask]+<span class="dv">1</span>))</code></pre>
+<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">4</span>)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">2</span>,<span class="dt">col=</span>(res$cluster[mask]+<span class="dv">1</span>))</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-20-9.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(data[,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">5</span>)],<span class="dt">pch=</span><span class="st">&quot;.&quot;</span>)
-<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">5</span>)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">2</span>,<span class="dt">col=</span>(cluster$cluster[mask]+<span class="dv">1</span>))</code></pre>
+<span class="kw">points</span>(data[mask,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">5</span>)],<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">2</span>,<span class="dt">col=</span>(res$cluster[mask]+<span class="dv">1</span>))</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-20-10.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">apply</span>(data,<span class="dv">2</span>,range)</code></pre>
 <pre><code>##      logP    logA11 R21        phi21       V.I WI
 ## [1,]    0 0.0000000   0 2.429557e-05 0.0000000  0
 ## [2,]    1 0.9941714   1 9.999900e-01 0.9907912  1</code></pre>
+<p>Now, I would like you to play with the dbscan or optics parameters and see if you can find a way to separate all variability types.</p>
 <p>When I had to deal with this dataset, I actually used a different algorithm known a Hierarchical Mode Association Clustering (HMAC).</p>
 <div class="figure">
 <img src="images/HMAC-paper.jpg" />
@@ -654,34 +656,25 @@ column &lt;-<span class="st"> </span><span class="dv">6</span>
 </div>
 <div id="kohonen" class="section level2">
 <h2>Kohonen</h2>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(mock.data)
-<span class="kw">library</span>(<span class="st">&quot;kohonen&quot;</span>)</code></pre>
-<pre><code>## Loading required package: class</code></pre>
-<pre><code>## Loading required package: MASS</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;fields&quot;</span>)</code></pre>
-<pre><code>## Loading required package: spam</code></pre>
-<pre><code>## Loading required package: grid</code></pre>
-<pre><code>## Spam version 1.0-1 (2014-09-09) is loaded.
-## Type &#39;help( Spam)&#39; or &#39;demo( spam)&#39; for a short introduction 
-## and overview of this package.
-## Help for individual functions is also obtained by adding the
-## suffix &#39;.spam&#39; to the function name, e.g. &#39;help( chol.spam)&#39;.</code></pre>
-<pre><code>## 
-## Attaching package: &#39;spam&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     backsolve, forwardsolve</code></pre>
-<pre><code>## Loading required package: maps</code></pre>
-<pre><code>## 
-## Attaching package: &#39;maps&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:kohonen&#39;:
-## 
-##     map</code></pre>
+<p>Scheme:</p>
+<ol style="list-style-type: decimal">
+<li>Define 2D grid of neurons. Each neuron will be fully connected to the input neurons and be characterized by a vector of weights <span class="math">\(\mathbb{w}_i\)</span>. Initially, these vectors are drawn at random from a given distribution (e.g. the first 2 PCA components).</li>
+<li>Define a neighbourhood for each neuron.</li>
+<li>take the first data point <span class="math">\(\mathbb{x}_1\)</span> and calculate for each grid neuron the euclidean distance between the data point and each of the weight vectors <span class="math">\(\mathbb{w}_i\)</span>.</li>
+<li>Select the neuron that is closest to the input data and update its weight and those of the neurons in the neighbourhood according to <span class="math">\[
+\mathbb{w}&#39; = \mathbb{w}+\alpha(t,d_grid)\cdot(\mathbb{x}_1-\mathbb{w})
+\]</span></li>
+<li>Repeat steps 3. and 4. for all data points <span class="math">\(i:2,...,N\)</span></li>
+<li>Repeat steps 3. to 5. until convergence or a maximum number of cycles is achieved</li>
+</ol>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(mock.data)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
-<pre class="sourceCode r"><code class="sourceCode r">cluster &lt;-<span class="st"> </span><span class="kw">som</span>(mock.data)
-<span class="kw">plot</span>(cluster, <span class="dt">type=</span><span class="st">&quot;code&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;kohonen&quot;</span>)
+<span class="kw">library</span>(<span class="st">&quot;fields&quot;</span>)
+cluster &lt;-<span class="st"> </span><span class="kw">som</span>(mock.data)
+<span class="kw">plot</span>(cluster, <span class="dt">type=</span><span class="st">&quot;code&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Main&quot;</span>) </code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-21-2.png" width="672" /></p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cluster, <span class="dt">type=</span><span class="st">&quot;changes&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cluster, <span class="dt">type=</span><span class="st">&quot;changes&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Changes&quot;</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-21-3.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cluster, <span class="dt">type =</span> <span class="st">&quot;property&quot;</span>, <span class="dt">property =</span> cluster$codes[,<span class="dv">2</span>], <span class="dt">main=</span><span class="kw">names</span>(cluster$data)[<span class="dv">2</span>], <span class="dt">palette.name=</span>tim.colors)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-21-4.png" width="672" /></p>
