@@ -667,6 +667,7 @@ column &lt;-<span class="st"> </span><span class="dv">6</span>
 <li>Repeat steps 3. and 4. for all data points <span class="math">\(i:2,...,N\)</span></li>
 <li>Repeat steps 3. to 5. until convergence or a maximum number of cycles is achieved</li>
 </ol>
+<p>Let us apply it to the mock data with 3 Gaussian components that overlap in 2D:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(mock.data)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;kohonen&quot;</span>)
@@ -696,15 +697,15 @@ clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <sp
 <span class="co">#clusters &lt;- hclust(dists, method = &#39;mcquitty&#39;)</span>
 <span class="kw">plot</span>(clusters)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
-<pre class="sourceCode r"><code class="sourceCode r">clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dv">15</span>)
+<pre class="sourceCode r"><code class="sourceCode r">clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dt">k=</span><span class="dv">15</span>)
 <span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">6</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-2.png" width="672" /></p>
-<pre class="sourceCode r"><code class="sourceCode r">clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dv">200</span>)
+<pre class="sourceCode r"><code class="sourceCode r">clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dt">k=</span><span class="dv">200</span>)
 <span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">4</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-3.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r">dists &lt;-<span class="st"> </span><span class="kw">dist</span>(data[,-<span class="dv">4</span>])
 clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <span class="dt">method =</span> <span class="st">&#39;average&#39;</span>)
-clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dv">200</span>)
+clusterCut &lt;-<span class="st"> </span><span class="kw">cutree</span>(clusters, <span class="dt">k=</span><span class="dv">200</span>)
 <span class="kw">plot</span>(data[,<span class="dv">1</span>],data[,<span class="dv">4</span>], <span class="dt">col=</span>clusterCut,<span class="dt">pch=</span><span class="dv">16</span>,<span class="dt">cex=</span>.<span class="dv">3</span>)</code></pre>
 <p><img src="BUnsupervisedClassification_files/figure-html/unnamed-chunk-22-4.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r">clusters &lt;-<span class="st"> </span><span class="kw">hclust</span>(dists, <span class="dt">method =</span> <span class="st">&#39;single&#39;</span>)
