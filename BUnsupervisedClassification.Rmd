@@ -466,7 +466,7 @@ $$
 5. Repeat steps 3. and 4. for all data points $i:2,...,N$ 
 6. Repeat steps 3. to 5. until convergence or a maximum number of cycles is achieved
 
-
+Let us apply it to the mock data with 3 Gaussian components that overlap in 2D:
 
 ```{r }
 plot(mock.data)
