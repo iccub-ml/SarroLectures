@@ -988,8 +988,8 @@ subset.wrapperscore &lt;-<span class="st"> </span>function(subset){
 <p>Fom a wider perspective, we generally attempt to follow the example of Occam in chosing the less complex model that achieves optimal performance. René and Gilles talked about this yesterday, probably less that they would have liked to, and the topic deserves.</p>
 <p>Sometimes, taking the naïve approach that a model complexity is given by its number of parameters, we may end up selecting features. Take the usual scoring rules for model selection:</p>
 <p><span class="math">\[
-BIC = -\log p(D|\Omega)+k\log(n)
-AIC = -\log p(D|\Omega)+2\log(n)
+BIC = -2\log p(D|\Omega)+k\log(n)
+AIC = -2\log p(D|\Omega)+2\cdot k
 \]</span></p>
 <p>The number of parameters usually decreases if we prune inputs from the model, although regularization does not necessarily lead to feature selection. Examples of this approach can be the Lasso and Ridge regression or the weight decay in neural networks.</p>
 <div id="section-7" class="section level71">
