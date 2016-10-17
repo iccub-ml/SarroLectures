@@ -80,7 +80,7 @@ Now, let us ask ourselves how many examples we need to ensure that the **closest
 
 If our spectra had only 2 measured fluxes, this furthest example would be at a distance equal to $\sqrt{0.1^2+0.1^2}$=`r sqrt(0.1^2+0.1^2)`.
 
-```{r, out.width='750px', out.height='750px'}
+```{r, out.width='500px', out.height='750px'}
 plot(cbind(0,0),xlim=c(0,1),ylim=c(0,1),xlab="feature #1",ylab="feature #2",col="white")
 points(cbind(0.6,0.3),pch=16,col="blue")
 r <- sqrt(0.1^2+0.1^2)
