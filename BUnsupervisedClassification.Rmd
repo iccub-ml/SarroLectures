@@ -617,6 +617,17 @@ where $D$ is the diagonal matrix formed by
 
 $$d_{i}=\sum_{j=1}^{n}s(i,j) $$
 
+[Properties of the unnormalized Laplacian](images/ULaplacianProperties.png)
+
+A subset $A\subsetV$ of a graph is connected if any two vertices in $A$ can be joined by a path such that all intermediate points also lie in $A$. 
+
+A subset $A$ is called a connected component if it is connected and if there are no connections between vertices in $A$ and $\overbar{A}$. 
+
+The nonempty sets $A_1, A_2, ..., A_k$ form a partition of the graph if
+$A_i\cap A_j=\emptyset$ and $A_1\cup A_2\cup ... A_k=V$.
+
+[The spectrum-clustering connection](images/SpectralClustering2.png)
+
 * Now, once we have the graph fully specified, **spectral clustering** proceeds by computing the eigenvectors/eigenvalues of the Laplacian, and aplying $k$-means to the rows of the $U$ matrix.
 
 ### Spectral clustering with the unnormalized Laplacian
@@ -633,12 +644,11 @@ The (justified) hope is that the new space of characteristics is more separable 
 
 ![Excerpt from the [tutorial by Ulrike von Luxburg](http://link.springer.com/article/10.1007/s11222-007-9033-z)](images/normalized2.png)
 
-
-
 ```{r}
-#library(kernlab)
-#cluster <- specc(data,centers=25,kernel="rbfdot",kpar="automatic",
-#                 nystrom.red=FALSE,nystrom.sample=5000,iterations=200)
+library(kernlab)
+cluster <- specc(as.matrix(data),centers=5,kernel="rbfdot",kpar="automatic")
+
+plot(data[,1],data[,6],col=cluster,pch=".")
 
 
 ```

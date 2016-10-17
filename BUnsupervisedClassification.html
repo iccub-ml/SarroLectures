@@ -802,6 +802,11 @@ mask &lt;-<span class="st"> </span>cluster$cluster==i
 </ul>
 <p>where <span class="math">\(D\)</span> is the diagonal matrix formed by</p>
 <p><span class="math">\[d_{i}=\sum_{j=1}^{n}s(i,j) \]</span></p>
+<p><a href="images/ULaplacianProperties.png">Properties of the unnormalized Laplacian</a></p>
+<p>A subset <span class="math">\(A\subsetV\)</span> of a graph is connected if any two vertices in <span class="math">\(A\)</span> can be joined by a path such that all intermediate points also lie in <span class="math">\(A\)</span>.</p>
+<p>A subset <span class="math">\(A\)</span> is called a connected component if it is connected and if there are no connections between vertices in <span class="math">\(A\)</span> and <span class="math">\(\overbar{A}\)</span>.</p>
+<p>The nonempty sets <span class="math">\(A_1, A_2, ..., A_k\)</span> form a partition of the graph if <span class="math">\(A_i\cap A_j=\emptyset\)</span> and <span class="math">\(A_1\cup A_2\cup ... A_k=V\)</span>.</p>
+<p><a href="images/SpectralClustering2.png"></a></p>
 <ul>
 <li>Now, once we have the graph fully specified, <strong>spectral clustering</strong> proceeds by computing the eigenvectors/eigenvalues of the Laplacian, and aplying <span class="math">\(k\)</span>-means to the rows of the <span class="math">\(U\)</span> matrix.</li>
 </ul>
