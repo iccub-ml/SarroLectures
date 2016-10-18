@@ -504,14 +504,16 @@ cases1 [1,1] <- sum(data1[,5]==0 & data1[,6] == 0)
 cases1 [2,1] <- sum(data1[,5]==1 & data1[,6] == 0)
 cases1 [1,2] <- sum(data1[,5]==0 & data1[,6] == 1)
 cases1 [2,2] <- sum(data1[,5]==1 & data1[,6] == 1)
-kable(cases1,col.names = c("x5","class"))
+rownames(cases1)<-c("class=0","class=1")
+kable(cases1,col.names = c("x5=0","x5=1"),row.names = T)
 
 cases2 <- matrix(NA,2,2)
 cases2 [1,1] <- sum(data2[,5]==0 & data2[,6] == 0)
 cases2 [2,1] <- sum(data2[,5]==1 & data2[,6] == 0)
 cases2 [1,2] <- sum(data2[,5]==0 & data2[,6] == 1)
 cases2 [2,2] <- sum(data2[,5]==1 & data2[,6] == 1)
-kable(cases1,col.names = c("x5","class"))
+rownames(cases2)<-c("class=0","class=1")
+kable(cases2,col.names = c("x5=0","x5=1"),row.names = T)
 ```
 
 This is a nice example of how the sampling process that is inherent to building a training set naturally introduces unwanted spurious correlations even for irrelevant variables.
@@ -698,6 +700,8 @@ Sometimes, taking the naïve approach that a model complexity is given by its nu
 
 $$
 BIC = -2\log p(D|\Omega)+k\log(n)
+$$
+$$
 AIC = -2\log p(D|\Omega)+2\cdot k
 $$
 
@@ -786,7 +790,7 @@ A very intuitive way to understand ICA is to think of the cocktail party problem
 The recording of one such microphone is a temporal record of the mixed signals. Let us denote one of these recordings as $\mathbb{x}_i$. Since $\mathbb{x}_i$ is an additive mixture of signals, we can write it as
 
 $$
-\mathbb{x}_i = a_{i1}\mathbb{s}_1+a{i2}\mathbb{s}_2+...+a{iN}\mathbb{s}_N
+\mathbb{x}_i = a_{i1}\mathbb{s}_1+a_{i2}\mathbb{s}_2+...+a_{iN}\mathbb{s}_N
 $$
 
 where the $\mathbb{s}_j$ are the source signals we aim to separate. Thus, the problems consists in finding the source signals and the mixing coefficients $a_{ij}$. In matrix notation, $X=AS$ 
