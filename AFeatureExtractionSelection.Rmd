@@ -489,7 +489,7 @@ We can build two bayesian network classifiers based on two different training se
 set.seed(0)
 require("bnlearn")
 data1 <- rbind(cases,cases,cases,cases)
-data2 <- as.integer(runif(64)*10)
+data2 <- as.integer(runif(64)*10)+1
 data2 <- cases[data2,]
 ```
 
