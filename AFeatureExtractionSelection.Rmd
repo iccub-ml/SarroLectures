@@ -778,6 +778,22 @@ pca <- princomp(training)
 summary(pca)
 ```
 
+```{r webgl=TRUE}
+library(knitr)
+knit_hooks$set(webgl = hook_webgl)
+
+df2 <- df[,-dim(df)[2]]
+df2 <- df2[,1:1000]
+pca <- princomp(df2)
+library(rgl)
+pal <- colorRampPalette(c("red","blue"),space="rgb")
+col <- SetupPalette(df[,1062])
+pch=0.6+(StPa[,2]+1)/6
+plot3d(pca$scores[,1],pca$scores[,2],pca$scores[,3],col=col,size=pch,ty="s")
+
+```
+
+
 
 ### Independent Component Analysis
 
@@ -891,7 +907,8 @@ library(lle)
 
 df2 <- df[,-dim(df)[2]]
 #k = calc_k(df2,m=25)
-lle <- lle(df2,m=10,k=12)
+#lle <- lle(df2,m=10,k=12)
+lle <- lle(df2,m=10,k=50)
 
 
 library(rgl)
